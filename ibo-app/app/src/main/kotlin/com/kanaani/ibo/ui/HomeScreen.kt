@@ -70,9 +70,8 @@ fun HomeScreen(nav: Navigator, x: Xtream) {
     Backdrop {
         Column(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Logo(64.dp)
-                Spacer(Modifier.width(14.dp))
-                Text(Brand.name, color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 28.sp, maxLines = 1, modifier = Modifier.weight(1f))
+                Logo(70.dp)
+                Spacer(Modifier.weight(1f))
                 Column(horizontalAlignment = Alignment.End) {
                     Text(clock(now), color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 26.sp, maxLines = 1)
                     Label(date(now, "EEEE d MMMM"), 12.sp, C.text2)

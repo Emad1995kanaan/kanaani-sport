@@ -134,7 +134,8 @@ fun Tile(
 /** Logo de la marque (pastille carrée). */
 @Composable
 fun Logo(size: Dp) {
-    Image(painterResource(R.drawable.brand_mark), contentDescription = null, modifier = Modifier.size(size))
+    // Logo Kanaani Sport : large (≈ 1,6 × la hauteur), le nom est déjà dedans.
+    Image(painterResource(R.drawable.brand_mark), contentDescription = null, modifier = Modifier.height(size).width(size * 1.6f))
 }
 
 /** En-tête d'écran : logo, titre, heure. */
