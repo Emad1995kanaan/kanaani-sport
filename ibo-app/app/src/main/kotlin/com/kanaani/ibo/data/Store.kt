@@ -113,7 +113,7 @@ object Store {
         Downloads.init(ctx)
         ListCache.init(ctx)
         Panel.init(ctx)
-        language = sp.getString("lang", "ar") ?: "ar"
+        language = (sp.getString("lang", "ar") ?: "ar").let { if (it == "he") "ar" else it } // Kanaani Sport : arabe / anglais seulement
         val u = sp.getString("user", null)
         val p = sp.getString("pass", null)
         val th = sp.getString("trial_host", null)

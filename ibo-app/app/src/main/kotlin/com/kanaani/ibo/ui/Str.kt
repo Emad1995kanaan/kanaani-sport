@@ -9,7 +9,9 @@ enum class Lang(val code: String, val label: String, val rtl: Boolean) {
     HE("he", "עברית", true);
 
     companion object {
-        fun of(code: String) = entries.firstOrNull { it.code == code } ?: AR
+        fun of(code: String) = shown.firstOrNull { it.code == code } ?: AR
+        /** Kanaani Sport : arabe et anglais seulement. */
+        val shown get() = listOf(AR, EN)
     }
 }
 

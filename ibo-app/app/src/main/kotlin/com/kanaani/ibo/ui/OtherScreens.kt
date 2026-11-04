@@ -215,7 +215,7 @@ fun SettingsScreen(nav: Navigator, x: Xtream) {
         }
     }
     when (dialog) {
-        "lang" -> ChoiceDialog(Str.language, Lang.entries.map { l -> l.label to { Store.chooseLanguage(l.code); dialog = null } }) { dialog = null }
+        "lang" -> ChoiceDialog(Str.language, Lang.shown.map { l -> l.label to { Store.chooseLanguage(l.code); dialog = null } }) { dialog = null }
         "logout" -> ChoiceDialog(Str.logoutAsk, listOf(
             Str.logout to { dialog = null; AccountCache.value = null; com.kanaani.ibo.player.Playback.stop(); Store.logout() },
             Str.cancel to { dialog = null },

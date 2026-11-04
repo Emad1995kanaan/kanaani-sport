@@ -157,7 +157,7 @@ fun LoginScreen() {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Label(if (byCode) Str.loginWithUser else Str.loginWithCode, 14.sp, weight = FontWeight.SemiBold) }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Lang.entries.forEach { l ->
+                    Lang.shown.forEach { l ->
                         val on = l == Str.lang
                         Tile({ Store.chooseLanguage(l.code) }, Modifier.weight(1f).height(34.dp), RoundedCornerShape(10.dp),
                             colors = listOf(if (on) C.cardHi else Color.Transparent), focusColors = listOf(C.cardHi)) {
