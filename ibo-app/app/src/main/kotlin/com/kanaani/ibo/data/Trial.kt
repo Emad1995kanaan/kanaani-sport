@@ -48,11 +48,30 @@ object Trial {
         }.also { if (it.ok) expires = it.expires }
     }
 
+    /** Connexion par code (10 chiffres) : le panneau renvoie le compte du serveur lié à ce code. */
+    suspend fun loginCode(code: String): Result {
+        val base = BuildConfig.PANEL_URL.trimEnd('/')
+        if (base.isBlank()) return Result(false, error = "net")
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val body = buildJsonObject { put("code", code); put("d", Panel.deviceId()); put("k", Panel.kind()) }.toString()
+                Http.api.newCall(Request.Builder().url("$base/api/code/login/${BuildConfig.PANEL_APP}")
+                    .post(body.toRequestBody("application/json".toMediaType())).build()).execute().use { r ->
+                    if (!r.isSuccessful) return@runCatching Result(false, error = "net")
+                    val o = Json.parseToJsonElement(r.body.string()) as? JsonObject ?: return@runCatching Result(false, error = "net")
+                    fun s(k: String) = (o[k] as? JsonPrimitive)?.contentOrNull.orEmpty()
+                    if (s("ok") == "true") Result(true, s("host").trimEnd('/'), s("user"), s("pass"), s("expires").toLongOrNull() ?: 0L, s("wa"))
+                    else Result(false, wa = s("wa"), error = s("error").ifEmpty { "none" })
+                }
+            }.getOrElse { Result(false, error = "net") }
+        }
+    }
+
     /** Boucle tant que l'application est ouverte avec un compte d'essai. */
     suspend fun keepAlive() {
         while (true) {
             val (u, p) = Store.trialLogin() ?: return
-            val r = login(u, p)
+            val r = if (Store.loginKind() == "code") loginCode(u) else login(u, p)
             when {
                 r.ok -> {
                     block = null

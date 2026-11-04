@@ -230,13 +230,16 @@ object Store {
         sp.edit().putString("lang", code).apply()
     }
 
-    fun login(x: Xtream, trial: Pair<String, String>? = null) {
+    fun login(x: Xtream, trial: Pair<String, String>? = null, kind: String = "trial") {
         val e = sp.edit().putString("user", x.username).putString("pass", x.password)
-        if (trial != null) e.putString("trial_u", trial.first).putString("trial_p", trial.second).putString("trial_host", x.hosts.first())
-        else e.remove("trial_u").remove("trial_p").remove("trial_host")
+        if (trial != null) e.putString("trial_u", trial.first).putString("trial_p", trial.second).putString("trial_host", x.hosts.first()).putString("trial_kind", kind)
+        else e.remove("trial_u").remove("trial_p").remove("trial_host").remove("trial_kind")
         e.apply()
         session = x
     }
+
+    /** « code » (connexion par code) ou « trial » (compte d'essai). */
+    fun loginKind(): String = sp.getString("trial_kind", "trial") ?: "trial"
 
     /** Identifiants d'essai (ceux donnés par le panneau), null pour un abonnement normal. */
     fun trialLogin(): Pair<String, String>? {
@@ -251,7 +254,7 @@ object Store {
     }
 
     fun logout() {
-        sp.edit().remove("user").remove("pass").remove("favorites").remove("watching").remove("trial_u").remove("trial_p").remove("trial_host").apply()
+        sp.edit().remove("user").remove("pass").remove("favorites").remove("watching").remove("trial_u").remove("trial_p").remove("trial_host").remove("trial_kind").apply()
         Trial.block = null
         watching = emptyList()
         // L'ordre des catégories est une préférence de l'appareil : il reste après une déconnexion.

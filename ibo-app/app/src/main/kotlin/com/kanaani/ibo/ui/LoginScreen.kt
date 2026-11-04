@@ -49,10 +49,34 @@ fun LoginScreen() {
     val userFocus = remember { FocusRequester() }
     // Clavier complet par défaut (lettres et chiffres) ; « 123 » passe au clavier numérique. Mot de passe visible.
     var numeric by remember { mutableStateOf(false) }
+    // Kanaani Sport : l'écran s'ouvre sur le code (10 chiffres) ; « Nom d'utilisateur et mot de passe » en option.
+    var byCode by remember { mutableStateOf(true) }
+    var code by remember { mutableStateOf("") }
     val keyboardCtl = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     InitialFocus(userFocus)
 
+    val submitCode: () -> Unit = submit@{
+        val c = code.filter { it.isDigit() }
+        if (checking) return@submit
+        if (c.length != 10) { error = Str.codeHint; return@submit }
+        checking = true; error = null
+        scope.launch {
+            val r = com.kanaani.ibo.data.Trial.loginCode(c)
+            if (!r.ok) { error = if (r.error == "net") Str.errNetwork else trialMessage(r, code = true); checking = false; return@launch }
+            val x = Xtream(listOf(r.host), r.user, r.pass)
+            val acc = x.account()
+            error = when {
+                acc == null -> Str.errNetwork
+                acc.status?.lowercase() != "active" -> Str.codeEnded
+                else -> null
+            }
+            checking = false
+            if (error == null) Store.login(x, c to "", "code")
+        }
+    }
+
     val submit: () -> Unit = submit@{
+        if (byCode) { submitCode(); return@submit }
         if (checking || user.isBlank() || pass.isEmpty()) return@submit
         checking = true
         error = null
@@ -105,7 +129,12 @@ fun LoginScreen() {
                 verticalArrangement = Arrangement.spacedBy(if (keyboard) 8.dp else 12.dp),
             ) {
                 Text(Str.signIn, color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = if (keyboard) 18.sp else 26.sp, maxLines = 1)
-                if (!keyboard) Label(Str.signInHint, 12.sp, C.text2, lines = 2)
+                if (!keyboard && !byCode) Label(Str.signInHint, 12.sp, C.text2, lines = 2)
+                if (byCode) {
+                    Field(code, { v -> code = v.filter { it.isDigit() }.take(10); error = null }, Str.code, Modifier.fillMaxWidth(), focusRequester = userFocus,
+                        imeAction = ImeAction.Done, numeric = true, onDone = submit)
+                    if (!keyboard) Label(Str.codeHint, 12.sp, C.text2, lines = 2)
+                } else {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Field(user, { user = it; error = null }, Str.username, Modifier.weight(1f), focusRequester = userFocus, numeric = numeric)
                     Spacer(Modifier.width(8.dp))
@@ -117,11 +146,16 @@ fun LoginScreen() {
                     }
                 }
                 Field(pass, { pass = it; error = null }, Str.password, Modifier.fillMaxWidth(), password = false, masked = false, imeAction = ImeAction.Done, numeric = numeric, onDone = submit)
+                }
                 error?.let { Label(it, 13.sp, C.error, FontWeight.SemiBold, lines = 3) }
                 Tile(submit, Modifier.fillMaxWidth().height(48.dp), RoundedCornerShape(12.dp), colors = C.live, focusScale = 1.03f) { f ->
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(if (checking) Str.checking else Str.login, color = Color.White, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     }
+                }
+                Tile({ byCode = !byCode; error = null }, Modifier.fillMaxWidth().height(40.dp), RoundedCornerShape(10.dp),
+                    colors = listOf(C.card), focusColors = C.live, focusScale = 1.02f) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Label(if (byCode) Str.loginWithUser else Str.loginWithCode, 14.sp, weight = FontWeight.SemiBold) }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Lang.entries.forEach { l ->
@@ -141,8 +175,13 @@ fun LoginScreen() {
 }
 
 /** Texte d'un refus d'essai (fin, plein, autre appareil…) avec le numéro WhatsApp. */
-fun trialMessage(r: com.kanaani.ibo.data.Trial.Result): String {
-    val t = when (r.error) {
+fun trialMessage(r: com.kanaani.ibo.data.Trial.Result, code: Boolean = com.kanaani.ibo.data.Store.trialLogin() != null && com.kanaani.ibo.data.Store.loginKind() == "code"): String {
+    val t = if (code) when (r.error) {
+        "expired" -> Str.codeEnded
+        "device" -> Str.codeDevice
+        "none" -> Str.codeWrong
+        else -> Str.codeOff
+    } else when (r.error) {
         "expired" -> Str.trialEnded
         "full" -> Str.trialFull
         "device" -> Str.trialDevice
