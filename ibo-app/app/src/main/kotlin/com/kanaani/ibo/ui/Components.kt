@@ -66,24 +66,25 @@ import kotlinx.coroutines.delay
 
 /** Palette « IBO » : bleu nuit, tuiles en dégradé. */
 object C {
-    val bgTop = Color(0xFF020A06)
-    val bgBottom = Color(0xFF06291A)
-    val glow = Color(0x5522C55E)
-    val panel = Color(0xFF0B1F15)
-    val card = Color(0xFF0F2A1D)
-    val cardHi = Color(0xFF174A31)
-    val line = Color(0xFF1F5138)
+    // Kanaani Sport — thème unique « bleu royal » (couleurs du logo).
+    val bgTop = Color(0xFF040A20)
+    val bgBottom = Color(0xFF0A1A4A)
+    val glow = Color(0x553B82FF)
+    val panel = Color(0xFF0C1840)
+    val card = Color(0xFF101C46)
+    val cardHi = Color(0xFF1C3375)
+    val line = Color(0xFF243E86)
     val text = Color(0xFFF5F7FF)
-    val text2 = Color(0xFFB8E6CB)
-    val text3 = Color(0xFF6BA684)
-    val accent = Color(0xFF16A34A)
-    val accentDark = Color(0xFF065F46)
+    val text2 = Color(0xFFB9C8F0)
+    val text3 = Color(0xFF7488BE)
+    val accent = Color(0xFF1E5BFF)
+    val accentDark = Color(0xFF0A2E9E)
     val focus = Color.White
     val error = Color(0xFFFF8A8A)
-    val live = listOf(Color(0xFF16A34A), Color(0xFF065F46))
+    val live = listOf(Color(0xFF1E5BFF), Color(0xFF0A2E9E))
     val movies = listOf(Color(0xFFFF6A3D), Color(0xFFB3122E))
     val series = listOf(Color(0xFF8B5CF6), Color(0xFF3B1C8C))
-    val small = listOf(Color(0xFF143D2A), Color(0xFF0C2418))
+    val small = listOf(Color(0xFF15265C), Color(0xFF0C173E))
     val danger = listOf(Color(0xFF7A1C2B), Color(0xFF4A0F1A))
 }
 

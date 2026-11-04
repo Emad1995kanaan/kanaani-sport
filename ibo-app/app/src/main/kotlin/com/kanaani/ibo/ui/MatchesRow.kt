@@ -56,7 +56,7 @@ fun MatchesRow(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
                             Label("×", 16.sp, C.text3, FontWeight.Bold)
                             Team(m.away, m.awayLogo, Modifier.weight(1f))
                         }
-                        Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 12.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold)
+                        Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 12.sp, if (m.channelName != null) Color(0xFF3BA0FF) else C.text3, FontWeight.Bold)
                     }
                 }
             }
@@ -96,7 +96,7 @@ fun MatchesPanel(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
                                 Label("${m.homeScore} - ${m.awayScore}", 18.sp, C.text, FontWeight.Bold)
                                 Label("● " + (m.minute ?: Str.liveNow), 11.sp, Color(0xFFFF6B6B), FontWeight.Bold)
                             } else Label(if (m.live) "● ${Str.liveNow}" else clock(m.start), 13.sp, if (m.live) Color(0xFFFF6B6B) else C.text, FontWeight.Bold)
-                            Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 11.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold, lines = 1)
+                            Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 11.sp, if (m.channelName != null) Color(0xFF3BA0FF) else C.text3, FontWeight.Bold, lines = 1)
                         }
                     }
                 }

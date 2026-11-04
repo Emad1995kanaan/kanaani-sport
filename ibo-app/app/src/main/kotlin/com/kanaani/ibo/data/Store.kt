@@ -134,7 +134,7 @@ object Store {
         watching = decodeWatch(sp.getString("watching", null))
         Layouts.init(ctx, categoryOrders.values.any { it.isNotEmpty() } || hiddenCategories.values.any { it.isNotEmpty() } || categoryNames.values.any { it.isNotEmpty() })
         aspect = sp.getInt("aspect", 0).mod(3)
-        homeTheme = sp.getInt("home_theme", 0).let { if (it == 1) 1 else 0 }
+        homeTheme = 0 // Kanaani Sport : un seul thème
     }
 
     /** Dernier serveur (principal / secours) qui a répondu. */

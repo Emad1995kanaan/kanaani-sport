@@ -215,9 +215,6 @@ fun SettingsScreen(nav: Navigator, x: Xtream) {
         }
     }
     when (dialog) {
-        "theme" -> ChoiceDialog(Str.homeTheme, listOf(Str.themeClassic, Str.themeBillboard).mapIndexed { i, n ->
-            (if (Store.homeTheme == i) "✓  $n" else n) to { Store.chooseHomeTheme(i); dialog = null }
-        }) { dialog = null }
         "lang" -> ChoiceDialog(Str.language, Lang.entries.map { l -> l.label to { Store.chooseLanguage(l.code); dialog = null } }) { dialog = null }
         "logout" -> ChoiceDialog(Str.logoutAsk, listOf(
             Str.logout to { dialog = null; AccountCache.value = null; com.kanaani.ibo.player.Playback.stop(); Store.logout() },
