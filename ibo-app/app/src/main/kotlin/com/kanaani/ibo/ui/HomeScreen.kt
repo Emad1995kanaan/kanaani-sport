@@ -113,9 +113,11 @@ private fun AdBox(list: List<String>, interval: Int, modifier: Modifier) {
 @Composable
 private fun BigTile(label: String, icon: String, colors: List<Color>, modifier: Modifier, onClick: () -> Unit) {
     Tile(onClick, modifier.fillMaxSize(), RoundedCornerShape(20.dp), colors = colors) {
-        Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.SpaceBetween) {
-            Icon(icon, 76.dp, Color.White, stroke = 1.4f)
-            Text(label, color = Color.White, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 24.sp, maxLines = 1)
+        // Icône et texte côte à côte : le texte reste visible même quand la tuile est basse (sous la pub).
+        Row(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            Icon(icon, 56.dp, Color.White, stroke = 1.4f)
+            Spacer(Modifier.width(18.dp))
+            Text(label, color = Color.White, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 30.sp, maxLines = 1)
         }
     }
 }
