@@ -102,7 +102,12 @@ object Store {
         if (upd.isEmpty()) sp.edit().remove("hidden_$kind").apply() else sp.edit().putString("hidden_$kind", upd.joinToString("\n")).apply()
     }
 
+    /** Format horaire du téléphone / de la TV (24 h ou 12 h). */
+    private var appCtx: Context? = null
+    fun is24h(): Boolean = appCtx?.let { android.text.format.DateFormat.is24HourFormat(it) } ?: false
+
     fun init(ctx: Context) {
+        appCtx = ctx.applicationContext
         sp = ctx.getSharedPreferences("kanaani", Context.MODE_PRIVATE)
         Translations.init(ctx)
         Downloads.init(ctx)

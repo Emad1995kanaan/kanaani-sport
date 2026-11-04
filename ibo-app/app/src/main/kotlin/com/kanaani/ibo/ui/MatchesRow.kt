@@ -92,8 +92,11 @@ fun MatchesPanel(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
                         }
                         Spacer(Modifier.width(8.dp))
                         Column(Modifier.width(118.dp), horizontalAlignment = Alignment.End) {
-                            Label(if (m.live) "● ${Str.liveNow}" else clock(m.start), 13.sp, if (m.live) Color(0xFFFF6B6B) else C.text, FontWeight.Bold)
-                            Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 11.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold, lines = 2)
+                            if (m.live && m.homeScore != null && m.awayScore != null) {
+                                Label("${m.homeScore} - ${m.awayScore}", 18.sp, C.text, FontWeight.Bold)
+                                Label("● " + (m.minute ?: Str.liveNow), 11.sp, Color(0xFFFF6B6B), FontWeight.Bold)
+                            } else Label(if (m.live) "● ${Str.liveNow}" else clock(m.start), 13.sp, if (m.live) Color(0xFFFF6B6B) else C.text, FontWeight.Bold)
+                            Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 11.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold, lines = 1)
                         }
                     }
                 }

@@ -155,6 +155,8 @@ fun Header(title: String, modifier: Modifier = Modifier, trailing: @Composable (
 
 /** Heure sur 12 h (ex. 5:04 م / 5:04 PM). */
 fun clock(now: Long): String {
+    // Comme l'horloge de l'appareil : 24 h si le téléphone / la TV est réglé ainsi.
+    if (com.kanaani.ibo.data.Store.is24h()) return java.text.SimpleDateFormat("HH:mm", java.util.Locale.ROOT).format(java.util.Date(now))
     val pm = java.util.Calendar.getInstance().apply { timeInMillis = now }.get(java.util.Calendar.AM_PM) == java.util.Calendar.PM
     val suffix = when (Str.lang) { Lang.AR -> if (pm) "م" else "ص"; else -> if (pm) "PM" else "AM" }
     return java.text.SimpleDateFormat("h:mm", java.util.Locale.ROOT).format(java.util.Date(now)) + " " + suffix

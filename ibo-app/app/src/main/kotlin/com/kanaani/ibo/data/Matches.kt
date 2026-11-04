@@ -17,6 +17,8 @@ import okhttp3.Request
 data class Match(
     val id: String, val league: String, val home: String, val away: String, val homeLogo: String?, val awayLogo: String?,
     val start: Long, val live: Boolean, val channelId: String?, val channelName: String?, val channelCat: String?,
+    /** Score en direct (null avant le coup d'envoi) et minute (« 67' », « HT »). */
+    val homeScore: Int? = null, val awayScore: Int? = null, val minute: String? = null,
 )
 
 /** « Matchs du jour » : lus depuis le panneau (/api/matches), rafraîchis toutes les 5 minutes. */
@@ -26,7 +28,7 @@ object Matches {
     private var at = 0L
 
     suspend fun refresh(force: Boolean = false) {
-        if (!force && System.currentTimeMillis() - at < 5 * 60_000L) return
+        if (!force && System.currentTimeMillis() - at < 55_000L) return
         val base = BuildConfig.PANEL_URL.trimEnd('/')
         if (base.isBlank()) return
         val root = withContext(Dispatchers.IO) {
@@ -45,8 +47,11 @@ object Matches {
                 fun s(k: String) = (o[k] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() && it != "null" }
                 val ch = o["channel"] as? JsonObject
                 fun c(k: String) = (ch?.get(k) as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
+                val so = o["score"] as? JsonObject
+                fun sc(k: String) = (so?.get(k) as? JsonPrimitive)?.contentOrNull?.toIntOrNull()
                 Match(s("id") ?: return@mapNotNull null, league, s("home").orEmpty(), s("away").orEmpty(), s("homeLogo"), s("awayLogo"),
-                    s("start")?.toLongOrNull() ?: 0L, s("live") == "true", c("id"), c("name"), c("cat"))
+                    s("start")?.toLongOrNull() ?: 0L, s("live") == "true", c("id"), c("name"), c("cat"),
+                    sc("home"), sc("away"), s("clock"))
             }
         }
     }
