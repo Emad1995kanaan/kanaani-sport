@@ -109,7 +109,8 @@ private fun AdBox(list: List<String>, interval: Int, modifier: Modifier) {
     // Cadre fixe 5:2 (image conseillée 1500×600) : la même image s'affiche entière sur toutes les tailles d'écran.
     Box(modifier, contentAlignment = Alignment.Center) {
         Box(Modifier.aspectRatio(2.5f, matchHeightConstraintsFirst = true).clip(RoundedCornerShape(20.dp)).background(C.card)) {
-            coil3.compose.AsyncImage(list[i % list.size], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+            // Fit : l'image entière est toujours visible, jamais coupée (bandes si elle n'est pas en 5:2).
+            coil3.compose.AsyncImage(list[i % list.size], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Fit)
         }
     }
 }
