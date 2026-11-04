@@ -168,7 +168,6 @@ fun SettingsScreen(nav: Navigator, x: Xtream) {
     InitialFocus(first)
     val items = listOf(
         SettingItem(Str.language, Icons.Globe) { dialog = "lang" },
-        SettingItem(Str.homeTheme, Icons.Grid) { dialog = "theme" },
         SettingItem(Str.account, Icons.Account) { nav.go(Screen.Account) },
     ) + (if (Store.packageOn) emptyList() else listOf(
         // Paquet du panneau : contenu verrouillé, pas de rangement ni de choix d'ordre.

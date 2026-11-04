@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -56,49 +57,40 @@ fun HomeScreen(nav: Navigator, x: Xtream) {
     LaunchedEffect(x) { AccountCache.load(x) }
     // « Tous » films et séries préparés en arrière-plan pendant qu'on est sur l'accueil.
     LaunchedEffect(x) { x.prefetch() }
-    LaunchedEffect(Unit) { com.kanaani.ibo.data.Rates.refresh() }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(60_000L - now % 60_000L) } }
     LaunchedEffect(Unit) { com.kanaani.ibo.data.Ads.refresh() }
-    when (com.kanaani.ibo.data.Store.homeTheme) {
-        1 -> { BillboardHome(nav, x, now); return }
-    }
+    LaunchedEffect(Unit) { while (true) { com.kanaani.ibo.data.Matches.refresh(); delay(60_000L) } }
     val first = remember { FocusRequester() }
     InitialFocus(first)
+    val ads = com.kanaani.ibo.data.Ads.billboard
 
+    // Kanaani Sport : un seul thème — pub + direct à gauche, matchs du jour à droite, petits boutons en bas.
     Backdrop {
-        Column(Modifier.fillMaxSize().padding(horizontal = 40.dp, vertical = 20.dp)) {
+        Column(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Logo(100.dp)
-                Spacer(Modifier.width(18.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(Brand.name, color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 38.sp, maxLines = 1)
-                    Label(Str.welcome, 20.sp, C.text2, FontWeight.SemiBold)
-                }
+                Logo(64.dp)
+                Spacer(Modifier.width(14.dp))
+                Text(Brand.name, color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 28.sp, maxLines = 1, modifier = Modifier.weight(1f))
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(clock(now), color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 32.sp, maxLines = 1)
+                    Text(clock(now), color = C.text, fontFamily = Sora, fontWeight = FontWeight.Bold, fontSize = 26.sp, maxLines = 1)
                     Label(date(now, "EEEE d MMMM"), 12.sp, C.text2)
                 }
             }
             Spacer(Modifier.height(12.dp))
-            // Kanaani Sport : matchs du jour en haut (chaîne sous chaque match)
-            MatchesRow(nav, x, Modifier.fillMaxWidth())
-            Spacer(Modifier.height(12.dp))
-            Row(Modifier.fillMaxWidth().height(if (com.kanaani.ibo.data.Matches.list.isEmpty()) 200.dp else 130.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                BigTile(Str.live, Icons.Live, C.live, Modifier.weight(1.3f).focusRequester(first)) { nav.go(Screen.Live()) }
-                if (com.kanaani.ibo.data.Store.kindOn("movie")) BigTile(Str.movies, Icons.Movies, C.movies, Modifier.weight(1f)) { nav.go(Screen.Catalog(series = false)) }
-                if (com.kanaani.ibo.data.Store.kindOn("series")) BigTile(Str.series, Icons.Series, C.series, Modifier.weight(1f)) { nav.go(Screen.Catalog(series = true)) }
+            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(Modifier.weight(1.45f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    if (ads.isNotEmpty()) AdBox(ads, com.kanaani.ibo.data.Ads.interval, Modifier.fillMaxWidth().weight(1f))
+                    BigTile(Str.live, Icons.Live, C.live, (if (ads.isEmpty()) Modifier.weight(1f) else Modifier.height(120.dp)).fillMaxWidth().focusRequester(first)) { nav.go(Screen.Live()) }
+                }
+                MatchesPanel(nav, x, Modifier.weight(1f).fillMaxHeight())
             }
             Spacer(Modifier.height(14.dp))
-            Row(Modifier.fillMaxWidth().height(72.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(Modifier.fillMaxWidth().height(60.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 SmallTile(Str.favorites, Icons.Heart, Modifier.weight(1f)) { nav.go(Screen.Favorites) }
-                SmallTile(Str.downloads, Icons.Download, Modifier.weight(1f)) { nav.go(Screen.Downloads) }
                 SmallTile(Str.account, Icons.Account, Modifier.weight(1f)) { nav.go(Screen.Account) }
                 SmallTile(Str.settings, Icons.Settings, Modifier.weight(1f)) { nav.go(Screen.Settings) }
             }
-            Spacer(Modifier.weight(1f))
-            // Cours des devises, au centre en bas.
-            RatesBar(Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Label(expiryLine(AccountCache.value), 12.sp, C.text2, modifier = Modifier.weight(1f))
@@ -108,33 +100,13 @@ fun HomeScreen(nav: Navigator, x: Xtream) {
     }
 }
 
-/** « $ دولار 3.70 ₪ · دينار 5.22 ₪ · € يورو 4.01 ₪ » (shekels pour une unité). */
+/** Image de pub du panneau (tourne toutes les [interval] s). */
 @Composable
-private fun RatesBar(modifier: Modifier) {
-    val r = com.kanaani.ibo.data.Rates.value ?: return
-    fun f(v: Double) = String.format(java.util.Locale.ROOT, "%.2f", v)
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            Modifier.clip(RoundedCornerShape(14.dp)).background(Color(0x990E1736)).padding(horizontal = 18.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(22.dp),
-        ) {
-            RateItem("$", Str.dollar, f(r.usd))
-            RateItem("JD", Str.dinar, f(r.jod))
-            RateItem("€", Str.euro, f(r.eur))
-        }
-        if (r.viaErApi) Label("Rates By Exchange Rate API", 9.sp, C.text3)
-    }
-}
-
-@Composable
-private fun RateItem(symbol: String, name: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Label(symbol, 14.sp, Color(0xFF8FB3FF), FontWeight.Bold)
-        Spacer(Modifier.width(6.dp))
-        Label(name, 14.sp, C.text2, FontWeight.SemiBold)
-        Spacer(Modifier.width(8.dp))
-        Label("$value ₪", 16.sp, C.text, FontWeight.Bold)
+private fun AdBox(list: List<String>, interval: Int, modifier: Modifier) {
+    var i by remember(list) { mutableStateOf(0) }
+    LaunchedEffect(list, interval) { while (list.size > 1) { delay(interval.coerceAtLeast(3) * 1000L); i = (i + 1) % list.size } }
+    Box(modifier.clip(RoundedCornerShape(20.dp)).background(C.card)) {
+        coil3.compose.AsyncImage(list[i % list.size], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
     }
 }
 

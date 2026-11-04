@@ -176,6 +176,8 @@ object Str {
     val ok get() = t("OK", "موافق", "אישור")
     val todayMatches get() = t("Today's matches", "مباريات اليوم", "משחקי היום")
     val liveNow get() = t("LIVE", "مباشر", "בשידור חי")
+    val noMatches get() = t("No matches today", "ما في مباريات اليوم", "אין משחקים היום")
+    val netPanel get() = t("Can't reach the server. Check your internet and try again.", "ما قدرنا نوصل للسيرفر. تأكد من الإنترنت وجرّب كمان مرة.", "אין חיבור לשרת. בדוק את האינטרנט ונסה שוב.")
     val chSoon get() = t("Channel to be announced", "القناة بتنعلن قريباً", "הערוץ יפורסם בקרוב")
     val code get() = t("Code", "الكود", "קוד")
     val codeHint get() = t("Enter the 10-digit code you received", "أدخل الكود (10 أرقام) اللي وصلك", "הזן את הקוד בן 10 הספרות שקיבלת")

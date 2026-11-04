@@ -11,7 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -57,6 +61,51 @@ fun MatchesRow(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+/** Kanaani Sport : colonne « Matchs du jour » à côté du direct ; un appui ouvre la chaîne en plein écran. */
+@Composable
+fun MatchesPanel(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
+    val list = Matches.list
+    val scope = rememberCoroutineScope()
+    Column(modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xCC0E1736)).padding(12.dp)) {
+        Label("⚽ " + Str.todayMatches, 17.sp, C.text, FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        if (list.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Label(Str.noMatches, 14.sp, C.text2, lines = 2) }
+            return@Column
+        }
+        LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(list, key = { it.id }) { m ->
+                Tile({ if (m.channelId != null) scope.launch { open(nav, x, m) } }, Modifier.fillMaxWidth().height(88.dp), RoundedCornerShape(14.dp),
+                    colors = listOf(C.card), focusColors = C.live, focusScale = 1.03f) {
+                    Row(Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                SmallLogo(m.homeLogo); Spacer(Modifier.width(6.dp)); Label(m.home, 13.sp, C.text, FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                SmallLogo(m.awayLogo); Spacer(Modifier.width(6.dp)); Label(m.away, 13.sp, C.text, FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Column(Modifier.width(118.dp), horizontalAlignment = Alignment.End) {
+                            Label(if (m.live) "● ${Str.liveNow}" else clock(m.start), 13.sp, if (m.live) Color(0xFFFF6B6B) else C.text, FontWeight.Bold)
+                            Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 11.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold, lines = 2)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SmallLogo(logo: String?) {
+    Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+        if (logo != null) AsyncImage(logo, null, Modifier.fillMaxSize()) else Label("⚽", 13.sp)
     }
 }
 

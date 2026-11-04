@@ -94,6 +94,7 @@ fun LoginScreen() {
             val status = acc?.status?.lowercase()
             error = when {
                 acc == null -> Str.errNetwork
+                status == null && tr.error == "net" -> Str.netPanel
                 status == null -> Str.errWrong
                 status == "expired" || expired -> Str.errExpired
                 status != "active" -> Str.errDisabled
