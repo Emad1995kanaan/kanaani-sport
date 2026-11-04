@@ -1,6 +1,7 @@
 package com.kanaani.ibo.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -105,8 +106,11 @@ fun HomeScreen(nav: Navigator, x: Xtream) {
 private fun AdBox(list: List<String>, interval: Int, modifier: Modifier) {
     var i by remember(list) { mutableStateOf(0) }
     LaunchedEffect(list, interval) { while (list.size > 1) { delay(interval.coerceAtLeast(3) * 1000L); i = (i + 1) % list.size } }
-    Box(modifier.clip(RoundedCornerShape(20.dp)).background(C.card)) {
-        coil3.compose.AsyncImage(list[i % list.size], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+    // Cadre fixe 5:2 (image conseillée 1500×600) : la même image s'affiche entière sur toutes les tailles d'écran.
+    Box(modifier, contentAlignment = Alignment.Center) {
+        Box(Modifier.aspectRatio(2.5f, matchHeightConstraintsFirst = true).clip(RoundedCornerShape(20.dp)).background(C.card)) {
+            coil3.compose.AsyncImage(list[i % list.size], null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+        }
     }
 }
 
