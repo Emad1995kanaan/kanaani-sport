@@ -80,8 +80,11 @@ fun HomeScreen(nav: Navigator, x: Xtream) {
                     Label(date(now, "EEEE d MMMM"), 12.sp, C.text2)
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth().height(200.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+            Spacer(Modifier.height(12.dp))
+            // Kanaani Sport : matchs du jour en haut (chaîne sous chaque match)
+            MatchesRow(nav, x, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(12.dp))
+            Row(Modifier.fillMaxWidth().height(if (com.kanaani.ibo.data.Matches.list.isEmpty()) 200.dp else 130.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                 BigTile(Str.live, Icons.Live, C.live, Modifier.weight(1.3f).focusRequester(first)) { nav.go(Screen.Live()) }
                 if (com.kanaani.ibo.data.Store.kindOn("movie")) BigTile(Str.movies, Icons.Movies, C.movies, Modifier.weight(1f)) { nav.go(Screen.Catalog(series = false)) }
                 if (com.kanaani.ibo.data.Store.kindOn("series")) BigTile(Str.series, Icons.Series, C.series, Modifier.weight(1f)) { nav.go(Screen.Catalog(series = true)) }
