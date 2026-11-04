@@ -52,7 +52,7 @@ fun MatchesRow(nav: Navigator, x: Xtream, modifier: Modifier = Modifier) {
                             Label("×", 16.sp, C.text3, FontWeight.Bold)
                             Team(m.away, m.awayLogo, Modifier.weight(1f))
                         }
-                        Label(m.channelName?.let { "▶ $it" } ?: Str.chSoon, 12.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold)
+                        Label(m.channelName?.let { "▶ " + com.kanaani.ibo.data.cleanChannel(it) } ?: Str.chSoon, 12.sp, if (m.channelName != null) Color(0xFF4ADE80) else C.text3, FontWeight.Bold)
                     }
                 }
             }
