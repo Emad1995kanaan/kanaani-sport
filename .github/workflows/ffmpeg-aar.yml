@@ -1,0 +1,47 @@
+name: Build FFmpeg audio decoder (media3)
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21" }
+      - name: Build
+        run: |
+          set -e
+          git clone -q --depth 1 --branch 1.11.1 https://github.com/androidx/media media3
+          cd media3
+          # MP1/MP2 ont leurs propres décodeurs dans FFmpeg (le module les envoie à « mp3 », qui ne lit que la couche III)
+          F=libraries/decoder_ffmpeg/src/main/java/androidx/media3/decoder/ffmpeg/FfmpegLibrary.java
+          python3 - "$F" <<'PY'
+          import sys; p=sys.argv[1]; s=open(p).read()
+          old='''      case MimeTypes.AUDIO_MPEG:
+                case MimeTypes.AUDIO_MPEG_L1:
+                case MimeTypes.AUDIO_MPEG_L2:
+                  return "mp3";'''
+          import re
+          s2=re.sub(r'case MimeTypes\.AUDIO_MPEG:\s*case MimeTypes\.AUDIO_MPEG_L1:\s*case MimeTypes\.AUDIO_MPEG_L2:\s*return "mp3";',
+                    'case MimeTypes.AUDIO_MPEG:\n        return "mp3";\n      case MimeTypes.AUDIO_MPEG_L1:\n        return "mp1";\n      case MimeTypes.AUDIO_MPEG_L2:\n        return "mp2";', s)
+          assert s2 != s, "patch failed"
+          open(p,"w").write(s2)
+          PY
+          grep -n '"mp1"\|"mp2"\|"mp3"' "$F"
+          FFMPEG_MODULE_PATH="$(pwd)/libraries/decoder_ffmpeg/src/main"
+          NDK_PATH="$ANDROID_NDK_LATEST_HOME"
+          echo "NDK: $NDK_PATH"
+          cd "$FFMPEG_MODULE_PATH/jni"
+          git clone -q https://github.com/FFmpeg/FFmpeg ffmpeg --branch=release/6.0 --depth=1
+          ./build_ffmpeg.sh "$FFMPEG_MODULE_PATH" "$NDK_PATH" "linux-x86_64" 23 aac ac3 eac3 mp1 mp2 mp3 dca truehd mlp vorbis opus flac alac pcm_mulaw pcm_alaw amrnb amrwb > ../../../../../ffbuild.log 2>&1 || (tail -50 ../../../../../ffbuild.log; exit 1)
+          cd - >/dev/null
+          cd "$GITHUB_WORKSPACE/media3"
+          ./gradlew -q :lib-decoder-ffmpeg:assembleRelease
+          find . -name "*.aar" -path "*decoder_ffmpeg*" | head
+          mkdir -p "$GITHUB_WORKSPACE/out" && cp $(find . -name "*release*.aar" -path "*decoder_ffmpeg*" | head -1) "$GITHUB_WORKSPACE/out/media3-ffmpeg-decoder-1.11.1.aar"
+          ls -la "$GITHUB_WORKSPACE/out"
+          unzip -l "$GITHUB_WORKSPACE/out/media3-ffmpeg-decoder-1.11.1.aar" | grep "\.so"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-aar
+          path: out/*.aar
