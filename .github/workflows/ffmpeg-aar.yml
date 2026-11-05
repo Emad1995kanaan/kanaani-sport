@@ -1,6 +1,8 @@
 name: Build FFmpeg audio decoder (media3)
 on:
   workflow_dispatch:
+  push:
+    branches: [ffmpeg-aar]
 jobs:
   build:
     runs-on: ubuntu-latest
