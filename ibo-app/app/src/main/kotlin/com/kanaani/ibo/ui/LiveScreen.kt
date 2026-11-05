@@ -91,8 +91,19 @@ fun LiveScreen(nav: Navigator, x: Xtream, s: Screen.Live) {
     val chFocus = remember { FocusRequester() }
     val catFocus = remember { FocusRequester() }
     // Nouvelle catégorie chargée : le focus passe sur la liste des chaînes (pas pendant la saisie du filtre).
+    // Ouverture : premier vrai bouquet sélectionné (ses chaînes s'affichent), focus sur lui.
+    LaunchedEffect(categories) {
+        val cats = categories ?: return@LaunchedEffect
+        if (s.category == null) cats.firstOrNull()?.let { s.category = it.id; s.focusIndex = 0 }
+    }
     LaunchedEffect(channels) {
         val list = shown ?: return@LaunchedEffect
+        if (!s.opened) {
+            if (s.category == null) return@LaunchedEffect // on attend le premier bouquet
+            s.opened = true
+            InitialFocusOnce(catFocus)
+            return@LaunchedEffect
+        }
         if (list.isEmpty()) { InitialFocusOnce(catFocus); return@LaunchedEffect }
         val i = s.focusIndex.coerceIn(0, list.lastIndex)
         runCatching { s.listState.scrollToItem(i) }
@@ -118,10 +129,17 @@ fun LiveScreen(nav: Navigator, x: Xtream, s: Screen.Live) {
                 Column(Modifier.width(200.dp).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(C.panel).padding(8.dp)) {
                     val cats = categories
                     if (cats == null) Loading() else LazyColumn(state = s.catState, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Recherche dans les catégories, en tête de liste.
+                        item(key = "catsearch") {
+                            SearchBox(s.catSearching, { s.catSearching = it }, s.catFilter, { s.catFilter = it }, Modifier.fillMaxWidth(), label = Str.searchCats)
+                        }
                         val fixed = listOf(Category(Screen.FAVORITES, "★ " + Str.favorites), Category(Screen.ALL, Str.all))
-                        itemsIndexed(fixed + cats, key = { i, c -> c.id + "#" + i }) { i, c ->
+                        val cq = s.catFilter.trim()
+                        val all = (fixed + cats).let { l -> if (cq.isEmpty()) l else l.filter { it.name.contains(cq, ignoreCase = true) } }
+                        val focusAt = all.indexOfFirst { it.id == s.category }.takeIf { it >= 0 } ?: 0
+                        itemsIndexed(all, key = { i, c -> c.id + "#" + i }) { i, c ->
                             val selected = s.category == c.id
-                            val m = if (i == 0) Modifier.focusRequester(catFocus) else Modifier
+                            val m = if (i == focusAt) Modifier.focusRequester(catFocus) else Modifier
                             Tile({ if (s.category != c.id) { s.category = c.id; s.focusIndex = 0; s.filter = ""; s.searching = false } },
                                 m.fillMaxWidth().height(38.dp), RoundedCornerShape(10.dp),
                                 colors = listOf(if (selected) C.cardHi else Color.Transparent), focusColors = C.live, focusScale = 1.02f) {

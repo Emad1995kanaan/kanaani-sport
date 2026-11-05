@@ -268,14 +268,14 @@ fun Field(
  * l'écran) ; pressé, il devient un champ avec le clavier ouvert, et ✕ ferme la recherche et vide le filtre.
  */
 @Composable
-fun SearchBox(open: Boolean, onOpen: (Boolean) -> Unit, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier) {
+fun SearchBox(open: Boolean, onOpen: (Boolean) -> Unit, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, label: String = Str.searchButton) {
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     if (!open) {
         Tile({ onOpen(true) }, modifier.height(40.dp), RoundedCornerShape(12.dp), colors = listOf(C.card), focusColors = C.live, focusScale = 1.03f) {
             Row(Modifier.fillMaxSize().padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Search, 18.dp, Color.White)
                 Spacer(Modifier.width(10.dp))
-                Label(Str.searchButton, 14.sp, C.text2, FontWeight.SemiBold)
+                Label(label, 14.sp, C.text2, FontWeight.SemiBold, lines = 1)
             }
         }
         return

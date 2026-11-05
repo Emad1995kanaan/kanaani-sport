@@ -134,10 +134,16 @@ fun CatalogScreen(nav: Navigator, x: Xtream, s: Screen.Catalog) {
                         cats == null -> Loading()
                         cats.isEmpty() -> Message(Str.empty)
                         else -> LazyColumn(state = s.catState, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            // Recherche dans les catégories, au-dessus de « Tous ».
+                            item(key = "catsearch") {
+                                SearchBox(s.catSearching, { s.catSearching = it }, s.catFilter, { s.catFilter = it }, Modifier.fillMaxWidth(), label = Str.searchCats)
+                            }
                             // « Tous » en tête de liste.
                             val fixed = listOf(Category(Screen.ALL, Str.all), Category(Screen.CONTINUE, Str.continueWatching),
                                 Category(Screen.LATEST, if (s.series) Str.latestSeries else Str.latestMovies))
-                            itemsIndexed(fixed + cats, key = { i, c -> c.id + "#" + i }) { i, c ->
+                            val cq = s.catFilter.trim()
+                            val all = (fixed + cats).let { l -> if (cq.isEmpty()) l else l.filter { it.name.contains(cq, ignoreCase = true) } }
+                            itemsIndexed(all, key = { i, c -> c.id + "#" + i }) { i, c ->
                                 val selected = s.category == c.id
                                 val m = if (selected || (i == 0 && s.category == null)) Modifier.focusRequester(catFocus) else Modifier
                                 Tile({ if (s.category != c.id) { s.category = c.id; s.focusIndex = -1; s.filter = ""; s.searching = false } },

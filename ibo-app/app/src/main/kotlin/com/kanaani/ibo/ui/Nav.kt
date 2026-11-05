@@ -20,7 +20,13 @@ import com.kanaani.ibo.data.Watch
 sealed class Screen {
     object Home : Screen()
     class Live : Screen() {
-        var category by mutableStateOf<String?>(ALL)
+        // null à l'ouverture : le premier vrai bouquet est choisi dès que la liste arrive (focus dessus).
+        var category by mutableStateOf<String?>(null)
+        /** Recherche dans les noms de catégories. */
+        var catFilter by mutableStateOf("")
+        var catSearching by mutableStateOf(false)
+        /** Premier affichage fait (focus initial sur la catégorie, pas sur les chaînes). */
+        var opened = false
         var focusIndex by mutableIntStateOf(0)
         val catState = LazyListState()
         val listState = LazyListState()
@@ -30,8 +36,11 @@ sealed class Screen {
         var playing by mutableStateOf<Channel?>(null)
     }
     class Catalog(val series: Boolean) : Screen() {
-        var category by mutableStateOf<String?>(ALL)
-        var focusIndex by mutableIntStateOf(-1)
+        // À l'ouverture : « Derniers ajouts », focus sur le plus récent.
+        var category by mutableStateOf<String?>(LATEST)
+        var focusIndex by mutableIntStateOf(0)
+        var catFilter by mutableStateOf("")
+        var catSearching by mutableStateOf(false)
         val catState = LazyListState()
         val gridState = LazyGridState()
         var filter by mutableStateOf("")

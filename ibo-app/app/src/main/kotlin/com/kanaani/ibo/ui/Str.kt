@@ -81,6 +81,7 @@ object Str {
     val latestSeries get() = t("Latest series updates", "آخر تحديثات المسلسلات", "סדרות שעודכנו לאחרונה")
     val categories get() = t("Categories", "الفئات", "קטגוריות")
     val search get() = t("Search…", "بحث…", "חיפוש…")
+    val searchCats get() = t("Search categories", "بحث بالتصنيفات", "חיפוש קטגוריות")
     val searchButton get() = t("Search", "بحث", "חיפוש")
     val abcKeyboard get() = t("ABC", "ABC", "ABC")
     val numKeyboard get() = t("123", "123", "123")
