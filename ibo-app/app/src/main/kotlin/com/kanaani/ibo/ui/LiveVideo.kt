@@ -1,5 +1,6 @@
 package com.kanaani.ibo.ui
 
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.background
@@ -54,11 +55,11 @@ fun LiveVideoHost(nav: Navigator, x: Xtream, top: Screen) {
         }
         Box(frame.background(Color.Black), contentAlignment = Alignment.Center) {
             PlayerSurface(controls = false, onView = { LiveVideo.view = it })
-            // Logo de l'appli en filigrane (coin haut-droit, semi-transparent) pendant le direct.
+            // Logo de l'appli en filigrane (coin bas-gauche, semi-transparent) pendant le direct.
             androidx.compose.foundation.Image(
                 androidx.compose.ui.res.painterResource(com.kanaani.ibo.R.drawable.watermark), contentDescription = null,
-                modifier = Modifier.align(androidx.compose.ui.AbsoluteAlignment.TopRight)
-                    .padding(top = if (full) 24.dp else 8.dp, end = if (full) 32.dp else 10.dp)
+                modifier = Modifier.align(androidx.compose.ui.AbsoluteAlignment.BottomLeft)
+                    .absolutePadding(left = if (full) 32.dp else 10.dp, bottom = if (full) 28.dp else 8.dp)
                     .height(if (full) 54.dp else 22.dp)
                     .graphicsLayer { alpha = 0.4f },
             )
