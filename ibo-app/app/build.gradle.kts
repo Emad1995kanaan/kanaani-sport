@@ -136,6 +136,9 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
 
     implementation(libs.media3.exoplayer)
+    // Décodeur audio FFmpeg (construit par .github/workflows/ffmpeg-aar.yml de kanaani-sport, media3 1.11.1)
+    implementation(files("libs/media3-ffmpeg-decoder-1.11.1.aar"))
+    implementation("androidx.media3:media3-decoder:${libs.versions.media3.get()}")
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.ui)
     implementation(libs.media3.datasource.okhttp)

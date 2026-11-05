@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ffmpeg-aar]
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,6 +45,12 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/out" && cp $(find . -name "*release*.aar" -path "*decoder_ffmpeg*" | head -1) "$GITHUB_WORKSPACE/out/media3-ffmpeg-decoder-1.11.1.aar"
           ls -la "$GITHUB_WORKSPACE/out"
           unzip -l "$GITHUB_WORKSPACE/out/media3-ffmpeg-decoder-1.11.1.aar" | grep "\.so"
+          cd "$GITHUB_WORKSPACE/out" && unzip -q -o media3-ffmpeg-decoder-1.11.1.aar -d x && echo "decoders: $(strings x/jni/arm64-v8a/libffmpegJNI.so | grep -xE 'mp1|mp2|mp3|ac3|eac3|aac|dca' | sort -u | tr '\n' ' ')" && rm -rf x
+      - name: Publish as a pre-release (never "latest", so app updates are untouched)
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release delete ffmpeg-decoder-1.11.1 -R "$GITHUB_REPOSITORY" -y --cleanup-tag 2>/dev/null || true
+          gh release create ffmpeg-decoder-1.11.1 out/media3-ffmpeg-decoder-1.11.1.aar -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false -t "FFmpeg audio decoder (media3 1.11.1)" -n "Build tool asset, not an app release."
       - uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-aar

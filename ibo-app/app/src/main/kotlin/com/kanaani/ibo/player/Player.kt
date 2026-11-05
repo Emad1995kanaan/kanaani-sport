@@ -47,7 +47,10 @@ object Playback {
 
     private fun build(ctx: Context): ExoPlayer {
         val load = DefaultLoadControl.Builder().setBufferDurationsMs(15_000, 50_000, 1_500, 3_000).build()
-        val p = ExoPlayer.Builder(ctx)
+        // Décodeur audio FFmpeg intégré : MP2, AC3, EAC3, DTS… jouent sur tous les écrans, même sans décodeur matériel.
+        val renderers = androidx.media3.exoplayer.DefaultRenderersFactory(ctx)
+            .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        val p = ExoPlayer.Builder(ctx, renderers)
             // Réseau via OkHttp ; fichiers locaux (téléchargements hors ligne) via DefaultDataSource.
             .setMediaSourceFactory(DefaultMediaSourceFactory(androidx.media3.datasource.DefaultDataSource.Factory(ctx, OkHttpDataSource.Factory(Http.client))))
             .setLoadControl(load)
